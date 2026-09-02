@@ -31,8 +31,25 @@ const saveStatus = document.querySelector("#save-status");
 const refreshSavedButton = document.querySelector("#refresh-saved-button");
 const savedGuidesStatus = document.querySelector("#saved-guides-status");
 const savedGuidesList = document.querySelector("#saved-guides-list");
+const savedGuideControls = document.querySelector("#saved-guide-controls");
+const editGuideButton = document.querySelector("#edit-guide-button");
+const deleteOpenGuideButton = document.querySelector("#delete-open-guide-button");
+const editGuideForm = document.querySelector("#edit-guide-form");
+const editTopicInput = document.querySelector("#edit-topic-input");
+const editSummaryInput = document.querySelector("#edit-summary-input");
+const editKeyConceptsFields = document.querySelector("#edit-key-concepts-fields");
+const editFlashcardsFields = document.querySelector("#edit-flashcards-fields");
+const editQuizFields = document.querySelector("#edit-quiz-fields");
+const updateGuideButton = document.querySelector("#update-guide-button");
+const cancelEditButton = document.querySelector("#cancel-edit-button");
+const editGuideStatus = document.querySelector("#edit-guide-status");
+const savedSearchForm = document.querySelector("#saved-search-form");
+const savedSearchInput = document.querySelector("#saved-search-input");
+const clearSearchButton = document.querySelector("#clear-search-button");
 
 let currentStudyMaterial = null;
+let currentSavedGuide = null;
+let savedGuidesRequestNumber = 0;
 
 function setStatus(element, message, type = "") {
   element.className = `form-status ${type}`.trim();
@@ -83,10 +100,14 @@ function showAuthenticationForms(message = "") {
   studyResults.hidden = true;
   savedGuidesList.replaceChildren();
   generateForm.reset();
+  editGuideForm.reset();
+  editGuideForm.hidden = true;
   currentStudyMaterial = null;
+  currentSavedGuide = null;
   setStatus(generationStatus, "");
   setStatus(saveStatus, "");
   setStatus(savedGuidesStatus, "");
+  setStatus(editGuideStatus, "");
   setStatus(loginStatus, message, message ? "success" : "");
 }
 
@@ -111,14 +132,17 @@ function createTextElement(tagName, className, text) {
   return element;
 }
 
-function renderStudyMaterial(material, { canSave = false } = {}) {
+function renderStudyMaterial(material, { canSave = false, isSaved = false } = {}) {
   resultTopic.textContent = material.topic;
   summaryContent.textContent = material.summary;
   keyConceptsList.replaceChildren();
   flashcardsList.replaceChildren();
   quizQuestionsList.replaceChildren();
   currentStudyMaterial = canSave ? material : null;
+  currentSavedGuide = isSaved ? material : null;
   saveGuideButton.hidden = !canSave;
+  savedGuideControls.hidden = !isSaved;
+  editGuideForm.hidden = true;
   saveGuideButton.disabled = false;
   saveGuideButton.textContent = "Save study guide";
   setStatus(saveStatus, "");
@@ -183,18 +207,24 @@ function handleAuthenticationFailure(error) {
   return true;
 }
 
-function renderSavedGuideList(guides) {
+function renderSavedGuideList(guides, searchTerm = "") {
   savedGuidesList.replaceChildren();
 
   if (guides.length === 0) {
     const emptyState = document.createElement("div");
     emptyState.className = "empty-state";
     emptyState.append(
-      createTextElement("h3", "", "No saved study guides yet"),
+      createTextElement(
+        "h3",
+        "",
+        searchTerm ? "No matching study guides" : "No saved study guides yet"
+      ),
       createTextElement(
         "p",
         "",
-        "Generate a study guide, then use Save study guide to add it here."
+        searchTerm
+          ? `No saved titles contain “${searchTerm}”.`
+          : "Generate a study guide, then use Save study guide to add it here."
       )
     );
     savedGuidesList.append(emptyState);
@@ -215,11 +245,23 @@ function renderSavedGuideList(guides) {
       )
     );
 
-    const openButton = createTextElement("button", "secondary-button", "Open guide");
+    const actions = document.createElement("div");
+    actions.className = "saved-guide-actions";
+
+    const openButton = createTextElement("button", "secondary-button", "Open");
     openButton.type = "button";
     openButton.addEventListener("click", () => openSavedGuide(guide.id));
 
-    card.append(details, openButton);
+    const editButton = createTextElement("button", "secondary-button", "Edit");
+    editButton.type = "button";
+    editButton.addEventListener("click", () => openSavedGuide(guide.id, { startEditing: true }));
+
+    const deleteButton = createTextElement("button", "danger-button", "Delete");
+    deleteButton.type = "button";
+    deleteButton.addEventListener("click", () => deleteSavedGuide(guide.id, guide.title));
+
+    actions.append(openButton, editButton, deleteButton);
+    card.append(details, actions);
     savedGuidesList.append(card);
   });
 }
@@ -231,29 +273,40 @@ async function loadSavedGuides() {
     return;
   }
 
+  const requestNumber = ++savedGuidesRequestNumber;
   refreshSavedButton.disabled = true;
   setStatus(savedGuidesStatus, "Loading your saved study guides...");
 
   try {
-    const guides = await sendApiRequest("/topics", {
+    const searchTerm = savedSearchInput.value.trim();
+    const query = searchTerm ? `?search=${encodeURIComponent(searchTerm)}` : "";
+    const guides = await sendApiRequest(`/topics${query}`, {
       headers: { Authorization: `Bearer ${token}` },
     });
-    renderSavedGuideList(guides);
+    if (requestNumber !== savedGuidesRequestNumber) {
+      return;
+    }
+    renderSavedGuideList(guides, searchTerm);
     setStatus(
       savedGuidesStatus,
       guides.length === 0 ? "" : `${guides.length} saved study guide${guides.length === 1 ? "" : "s"}.`,
       guides.length === 0 ? "" : "success"
     );
   } catch (error) {
+    if (requestNumber !== savedGuidesRequestNumber) {
+      return;
+    }
     if (!handleAuthenticationFailure(error)) {
       setStatus(savedGuidesStatus, error.message, "error");
     }
   } finally {
-    refreshSavedButton.disabled = false;
+    if (requestNumber === savedGuidesRequestNumber) {
+      refreshSavedButton.disabled = false;
+    }
   }
 }
 
-async function openSavedGuide(topicId) {
+async function openSavedGuide(topicId, { startEditing = false } = {}) {
   const token = localStorage.getItem(TOKEN_STORAGE_KEY);
   setStatus(savedGuidesStatus, "Opening saved study guide...");
 
@@ -262,8 +315,159 @@ async function openSavedGuide(topicId) {
       headers: { Authorization: `Bearer ${token}` },
     });
     showCreateStudyView();
-    renderStudyMaterial(material);
+    renderStudyMaterial(material, { isSaved: true });
     setStatus(generationStatus, "Loaded from your saved study guides.", "success");
+    if (startEditing) {
+      beginEditingCurrentGuide();
+    }
+  } catch (error) {
+    if (!handleAuthenticationFailure(error)) {
+      setStatus(savedGuidesStatus, error.message, "error");
+    }
+  }
+}
+
+function addEditField(container, labelText, value, className, maxLength) {
+  const fieldWrapper = document.createElement("div");
+  fieldWrapper.className = "edit-field";
+
+  const label = document.createElement("label");
+  label.textContent = labelText;
+
+  const field = document.createElement("textarea");
+  field.className = className;
+  field.value = value;
+  field.rows = 3;
+  field.maxLength = maxLength;
+  field.required = true;
+
+  fieldWrapper.append(label, field);
+  container.append(fieldWrapper);
+}
+
+function addDifficultyField(container, difficulty) {
+  const fieldWrapper = document.createElement("div");
+  fieldWrapper.className = "edit-field";
+
+  const label = document.createElement("label");
+  label.textContent = "Difficulty";
+
+  const select = document.createElement("select");
+  select.className = "edit-quiz-difficulty";
+  for (const level of ["easy", "medium", "hard"]) {
+    const option = document.createElement("option");
+    option.value = level;
+    option.textContent = level;
+    option.selected = level === difficulty;
+    select.append(option);
+  }
+
+  fieldWrapper.append(label, select);
+  container.append(fieldWrapper);
+}
+
+function beginEditingCurrentGuide() {
+  if (!currentSavedGuide) {
+    return;
+  }
+
+  editTopicInput.value = currentSavedGuide.topic;
+  editSummaryInput.value = currentSavedGuide.summary;
+  editKeyConceptsFields.replaceChildren();
+  editFlashcardsFields.replaceChildren();
+  editQuizFields.replaceChildren();
+
+  currentSavedGuide.key_concepts.forEach((concept, index) => {
+    const row = document.createElement("article");
+    row.className = "edit-row edit-concept-row";
+    row.append(createTextElement("h3", "", `Concept ${index + 1}`));
+    addEditField(row, "Name", concept.name, "edit-concept-name", 120);
+    addEditField(
+      row,
+      "Explanation",
+      concept.explanation,
+      "edit-concept-explanation",
+      1000
+    );
+    editKeyConceptsFields.append(row);
+  });
+
+  currentSavedGuide.flashcards.forEach((flashcard, index) => {
+    const row = document.createElement("article");
+    row.className = "edit-row edit-flashcard-row";
+    row.append(createTextElement("h3", "", `Flashcard ${index + 1}`));
+    addEditField(row, "Question", flashcard.question, "edit-flashcard-question", 500);
+    addEditField(row, "Answer", flashcard.answer, "edit-flashcard-answer", 1000);
+    editFlashcardsFields.append(row);
+  });
+
+  currentSavedGuide.quiz_questions.forEach((question, index) => {
+    const row = document.createElement("article");
+    row.className = "edit-row edit-quiz-row";
+    row.append(createTextElement("h3", "", `Quiz question ${index + 1}`));
+    addEditField(row, "Question", question.question, "edit-quiz-question", 500);
+    addEditField(row, "Answer", question.answer, "edit-quiz-answer", 1000);
+    addDifficultyField(row, question.difficulty);
+    editQuizFields.append(row);
+  });
+
+  editGuideForm.hidden = false;
+  setStatus(editGuideStatus, "");
+  editGuideForm.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+function buildEditedMaterial() {
+  return {
+    topic: editTopicInput.value.trim(),
+    summary: editSummaryInput.value.trim(),
+    key_concepts: [...editKeyConceptsFields.querySelectorAll(".edit-concept-row")].map(
+      (row) => ({
+        name: row.querySelector(".edit-concept-name").value.trim(),
+        explanation: row.querySelector(".edit-concept-explanation").value.trim(),
+      })
+    ),
+    flashcards: [...editFlashcardsFields.querySelectorAll(".edit-flashcard-row")].map(
+      (row) => ({
+        question: row.querySelector(".edit-flashcard-question").value.trim(),
+        answer: row.querySelector(".edit-flashcard-answer").value.trim(),
+      })
+    ),
+    quiz_questions: [...editQuizFields.querySelectorAll(".edit-quiz-row")].map(
+      (row) => ({
+        question: row.querySelector(".edit-quiz-question").value.trim(),
+        answer: row.querySelector(".edit-quiz-answer").value.trim(),
+        difficulty: row.querySelector(".edit-quiz-difficulty").value,
+      })
+    ),
+  };
+}
+
+async function deleteSavedGuide(topicId, title) {
+  const confirmed = window.confirm(
+    `Delete “${title}”? This permanently removes the guide and its study questions.`
+  );
+  if (!confirmed) {
+    return;
+  }
+
+  const token = localStorage.getItem(TOKEN_STORAGE_KEY);
+  setStatus(savedGuidesStatus, "Deleting saved study guide...");
+
+  try {
+    await sendApiRequest(`/topics/${topicId}`, {
+      method: "DELETE",
+      headers: { Authorization: `Bearer ${token}` },
+    });
+
+    if (currentSavedGuide?.id === topicId) {
+      currentSavedGuide = null;
+      studyResults.hidden = true;
+      editGuideForm.hidden = true;
+    }
+
+    showSavedGuidesView();
+    await loadSavedGuides();
+    setStatus(savedGuidesStatus, "Study guide deleted.", "success");
   } catch (error) {
     if (!handleAuthenticationFailure(error)) {
       setStatus(savedGuidesStatus, error.message, "error");
@@ -348,6 +552,61 @@ showSavedButton.addEventListener("click", () => {
 });
 
 refreshSavedButton.addEventListener("click", loadSavedGuides);
+
+savedSearchForm.addEventListener("submit", (event) => {
+  event.preventDefault();
+  loadSavedGuides();
+});
+
+clearSearchButton.addEventListener("click", () => {
+  savedSearchInput.value = "";
+  loadSavedGuides();
+});
+
+editGuideButton.addEventListener("click", beginEditingCurrentGuide);
+
+deleteOpenGuideButton.addEventListener("click", () => {
+  if (currentSavedGuide) {
+    deleteSavedGuide(currentSavedGuide.id, currentSavedGuide.topic);
+  }
+});
+
+cancelEditButton.addEventListener("click", () => {
+  editGuideForm.hidden = true;
+  setStatus(editGuideStatus, "");
+});
+
+editGuideForm.addEventListener("submit", async (event) => {
+  event.preventDefault();
+  if (!currentSavedGuide) {
+    setStatus(editGuideStatus, "Open a saved guide before editing.", "error");
+    return;
+  }
+
+  const token = localStorage.getItem(TOKEN_STORAGE_KEY);
+  const topicId = currentSavedGuide.id;
+  updateGuideButton.disabled = true;
+  setStatus(editGuideStatus, "Saving your changes...");
+
+  try {
+    const updatedGuide = await sendApiRequest(`/topics/${topicId}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(buildEditedMaterial()),
+    });
+    renderStudyMaterial(updatedGuide, { isSaved: true });
+    setStatus(generationStatus, "Saved study guide updated successfully.", "success");
+  } catch (error) {
+    if (!handleAuthenticationFailure(error)) {
+      setStatus(editGuideStatus, error.message, "error");
+    }
+  } finally {
+    updateGuideButton.disabled = false;
+  }
+});
 
 saveGuideButton.addEventListener("click", async () => {
   const token = localStorage.getItem(TOKEN_STORAGE_KEY);

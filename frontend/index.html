@@ -143,6 +143,12 @@
               </div>
               <div class="save-controls">
                 <button id="save-guide-button" type="button">Save study guide</button>
+                <div id="saved-guide-controls" class="saved-guide-controls" hidden>
+                  <button id="edit-guide-button" type="button">Edit guide</button>
+                  <button id="delete-open-guide-button" class="danger-button" type="button">
+                    Delete guide
+                  </button>
+                </div>
                 <p id="save-status" class="form-status" role="status" aria-live="polite"></p>
               </div>
             </div>
@@ -167,6 +173,40 @@
               <div id="quiz-questions-list" class="quiz-list"></div>
             </section>
           </section>
+
+          <form id="edit-guide-form" class="edit-guide-form" hidden>
+            <div>
+              <p class="eyebrow">Edit saved guide</p>
+              <h2>Update study material</h2>
+            </div>
+
+            <label for="edit-topic-input">Topic title</label>
+            <input id="edit-topic-input" type="text" minlength="3" maxlength="200" required>
+
+            <label for="edit-summary-input">Summary</label>
+            <textarea id="edit-summary-input" rows="6" maxlength="5000" required></textarea>
+
+            <fieldset>
+              <legend>Key concepts</legend>
+              <div id="edit-key-concepts-fields" class="edit-fields-list"></div>
+            </fieldset>
+
+            <fieldset>
+              <legend>Flashcards</legend>
+              <div id="edit-flashcards-fields" class="edit-fields-list"></div>
+            </fieldset>
+
+            <fieldset>
+              <legend>Quiz questions</legend>
+              <div id="edit-quiz-fields" class="edit-fields-list"></div>
+            </fieldset>
+
+            <div class="edit-actions">
+              <button id="update-guide-button" type="submit">Save changes</button>
+              <button id="cancel-edit-button" class="secondary-button" type="button">Cancel</button>
+            </div>
+            <p id="edit-guide-status" class="form-status" role="status" aria-live="polite"></p>
+          </form>
         </div>
 
         <section id="saved-guides-view" class="saved-guides-view" aria-labelledby="saved-guides-heading" hidden>
@@ -179,6 +219,19 @@
               Refresh
             </button>
           </div>
+          <form id="saved-search-form" class="saved-search-form">
+            <label for="saved-search-input">Search by topic</label>
+            <div class="saved-search-controls">
+              <input
+                id="saved-search-input"
+                type="search"
+                maxlength="200"
+                placeholder="Search saved study guides"
+              >
+              <button id="saved-search-button" type="submit">Search</button>
+              <button id="clear-search-button" class="secondary-button" type="button">Clear</button>
+            </div>
+          </form>
           <p id="saved-guides-status" class="form-status" role="status" aria-live="polite"></p>
           <div id="saved-guides-list" class="saved-guides-list"></div>
         </section>

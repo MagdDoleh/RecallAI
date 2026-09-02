@@ -14,7 +14,9 @@ body {
 }
 
 button,
-input {
+input,
+select,
+textarea {
   font: inherit;
 }
 
@@ -95,7 +97,9 @@ label {
   font-weight: 700;
 }
 
-input {
+input,
+select,
+textarea {
   width: 100%;
   padding: 10px 12px;
   border: 1px solid #9ca3af;
@@ -104,7 +108,9 @@ input {
   background: #ffffff;
 }
 
-input:focus {
+input:focus,
+select:focus,
+textarea:focus {
   border-color: #4f46e5;
   outline: 3px solid #e0e7ff;
 }
@@ -198,6 +204,14 @@ button:disabled {
   background: #1f2937;
 }
 
+.danger-button {
+  background: #b91c1c;
+}
+
+.danger-button:hover {
+  background: #991b1b;
+}
+
 .app-navigation {
   display: flex;
   gap: 8px;
@@ -262,8 +276,19 @@ button:disabled {
 
 .save-controls button,
 .saved-guides-header button,
-.saved-guide-card button {
+.saved-guide-card button,
+.saved-search-controls button,
+.edit-actions button {
   margin-top: 0;
+}
+
+.saved-guide-controls,
+.saved-guide-actions,
+.saved-search-controls,
+.edit-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
 }
 
 .save-controls .form-status {
@@ -386,6 +411,29 @@ details summary {
   margin-top: 16px;
 }
 
+.saved-search-form {
+  margin-top: 24px;
+  padding: 18px;
+  border-radius: 9px;
+  background: #f3f4f6;
+}
+
+.saved-search-form label {
+  margin-top: 0;
+}
+
+.saved-search-controls {
+  flex-wrap: nowrap;
+}
+
+.saved-search-controls input {
+  flex: 1 1 auto;
+}
+
+.saved-search-controls button {
+  flex: 0 0 auto;
+}
+
 .saved-guide-card {
   padding: 18px;
   border: 1px solid #d1d5db;
@@ -405,6 +453,52 @@ details summary {
   border-radius: 9px;
   color: #4b5563;
   text-align: center;
+}
+
+.edit-guide-form {
+  margin-top: 24px;
+  padding: 28px;
+  border: 1px solid #d1d5db;
+  border-radius: 12px;
+  background: #ffffff;
+  box-shadow: 0 8px 24px rgb(15 23 42 / 7%);
+  scroll-margin-top: 24px;
+}
+
+.edit-guide-form h2,
+.edit-row h3 {
+  margin-top: 0;
+}
+
+.edit-guide-form fieldset {
+  margin-top: 24px;
+  padding: 18px;
+  border: 1px solid #d1d5db;
+  border-radius: 9px;
+}
+
+.edit-guide-form legend {
+  padding: 0 6px;
+  font-weight: 800;
+}
+
+.edit-fields-list {
+  display: grid;
+  gap: 14px;
+}
+
+.edit-row {
+  padding: 16px;
+  border-radius: 8px;
+  background: #f8fafc;
+}
+
+.edit-field label {
+  margin-top: 10px;
+}
+
+.edit-actions {
+  margin-top: 24px;
 }
 
 [hidden] {
@@ -451,5 +545,13 @@ details summary {
 
   .save-controls {
     text-align: left;
+  }
+
+  .saved-search-controls {
+    flex-direction: column;
+  }
+
+  .saved-search-controls button {
+    width: 100%;
   }
 }
