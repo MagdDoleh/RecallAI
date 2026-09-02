@@ -80,3 +80,21 @@ class GeneratedStudyContent(BaseModel):
 
 class StudyMaterialResponse(GeneratedStudyContent):
     topic: str
+
+
+class SavedTopicListItem(BaseModel):
+    id: int
+    title: str
+    created_at: datetime
+    updated_at: datetime
+
+
+class SavedStudyMaterialResponse(BaseModel):
+    id: int
+    topic: str
+    summary: str
+    key_concepts: list[KeyConcept]
+    flashcards: list[GeneratedFlashcard]
+    quiz_questions: list[GeneratedQuizQuestion]
+    created_at: datetime
+    updated_at: datetime

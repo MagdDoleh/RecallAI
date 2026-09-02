@@ -4,6 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from backend.database import create_database_tables
 from backend.routes.auth import router as auth_router
 from backend.routes.generation import router as generation_router
+from backend.routes.topics import router as topics_router
 
 
 app = FastAPI(title="RecallAI API")
@@ -18,6 +19,7 @@ app.add_middleware(
 create_database_tables()
 app.include_router(auth_router)
 app.include_router(generation_router)
+app.include_router(topics_router)
 
 
 @app.get("/")

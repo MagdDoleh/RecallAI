@@ -190,6 +190,37 @@ button:disabled {
   text-decoration: underline;
 }
 
+.secondary-button {
+  background: #374151;
+}
+
+.secondary-button:hover {
+  background: #1f2937;
+}
+
+.app-navigation {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 24px;
+  border-bottom: 1px solid #d1d5db;
+}
+
+.nav-button {
+  margin: 0 0 -1px;
+  border: 1px solid transparent;
+  border-radius: 8px 8px 0 0;
+  background: transparent;
+  color: #4b5563;
+}
+
+.nav-button:hover,
+.nav-button.active {
+  border-color: #d1d5db;
+  border-bottom-color: #ffffff;
+  background: #ffffff;
+  color: #312e81;
+}
+
 .generator-card {
   margin-bottom: 32px;
 }
@@ -213,6 +244,30 @@ button:disabled {
   display: grid;
   gap: 22px;
   scroll-margin-top: 24px;
+}
+
+.results-heading,
+.saved-guides-header,
+.saved-guide-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.save-controls {
+  flex: 0 0 auto;
+  text-align: right;
+}
+
+.save-controls button,
+.saved-guides-header button,
+.saved-guide-card button {
+  margin-top: 0;
+}
+
+.save-controls .form-status {
+  max-width: 260px;
 }
 
 .results-heading h2,
@@ -309,6 +364,49 @@ details summary {
   font-weight: 700;
 }
 
+.saved-guides-view {
+  padding: 28px;
+  border: 1px solid #d1d5db;
+  border-radius: 12px;
+  background: #ffffff;
+  box-shadow: 0 8px 24px rgb(15 23 42 / 7%);
+}
+
+.saved-guides-header h2,
+.saved-guide-card h3,
+.saved-guide-card p,
+.empty-state h3,
+.empty-state p {
+  margin-top: 0;
+}
+
+.saved-guides-list {
+  display: grid;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.saved-guide-card {
+  padding: 18px;
+  border: 1px solid #d1d5db;
+  border-radius: 9px;
+  background: #f8fafc;
+}
+
+.saved-date {
+  margin-bottom: 0;
+  color: #6b7280;
+  font-size: 0.875rem;
+}
+
+.empty-state {
+  padding: 32px;
+  border: 1px dashed #9ca3af;
+  border-radius: 9px;
+  color: #4b5563;
+  text-align: center;
+}
+
 [hidden] {
   display: none !important;
 }
@@ -323,8 +421,12 @@ details summary {
   }
 
   .dashboard-header,
-  .topic-controls {
+  .topic-controls,
+  .results-heading,
+  .saved-guides-header,
+  .saved-guide-card {
     flex-direction: column;
+    align-items: stretch;
   }
 
   .account-panel {
@@ -337,5 +439,17 @@ details summary {
 
   .card-grid {
     grid-template-columns: 1fr;
+  }
+
+  .app-navigation {
+    overflow-x: auto;
+  }
+
+  .nav-button {
+    flex: 0 0 auto;
+  }
+
+  .save-controls {
+    text-align: left;
   }
 }

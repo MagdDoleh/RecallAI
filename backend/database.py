@@ -1,7 +1,7 @@
 from collections.abc import Generator
 from pathlib import Path
 
-from sqlalchemy import create_engine, event
+from sqlalchemy import create_engine, event, inspect, text
 from sqlalchemy.engine import Engine
 from sqlalchemy.orm import DeclarativeBase, Session, sessionmaker
 
@@ -34,6 +34,23 @@ def create_database_tables() -> None:
     from backend import models  # noqa: F401
 
     Base.metadata.create_all(bind=engine)
+    ensure_topic_key_concepts_column()
+
+
+def ensure_topic_key_concepts_column() -> None:
+    topic_columns = {
+        column["name"] for column in inspect(engine).get_columns("topics")
+    }
+    if "key_concepts" in topic_columns:
+        return
+
+    with engine.begin() as connection:
+        connection.execute(
+            text(
+                "ALTER TABLE topics "
+                "ADD COLUMN key_concepts JSON NOT NULL DEFAULT '[]'"
+            )
+        )
 
 
 def get_database_session() -> Generator[Session, None, None]:
