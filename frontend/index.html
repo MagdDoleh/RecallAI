@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RecallAI</title>
+    <link rel="stylesheet" href="css/styles.css">
+  </head>
+  <body>
+    <header class="site-header">
+      <a class="brand" href="/">RecallAI</a>
+      <span class="phase-label">Study dashboard</span>
+    </header>
+
+    <main class="page-shell">
+      <section id="auth-view" aria-labelledby="auth-heading">
+        <div class="intro-block">
+          <p class="eyebrow">Your study space</p>
+          <h1 id="auth-heading">Welcome to RecallAI</h1>
+          <p>Create an account or sign in to continue.</p>
+        </div>
+
+        <div class="auth-grid">
+          <form id="register-form" class="auth-card">
+            <h2>Create an account</h2>
+
+            <label for="register-username">Username</label>
+            <input
+              id="register-username"
+              name="username"
+              type="text"
+              minlength="3"
+              maxlength="50"
+              pattern="[A-Za-z0-9_]+"
+              autocomplete="username"
+              required
+            >
+
+            <label for="register-email">Email</label>
+            <input
+              id="register-email"
+              name="email"
+              type="email"
+              maxlength="255"
+              autocomplete="email"
+              required
+            >
+
+            <label for="register-password">Password</label>
+            <input
+              id="register-password"
+              name="password"
+              type="password"
+              minlength="8"
+              maxlength="128"
+              autocomplete="new-password"
+              required
+            >
+            <p class="field-hint">Use at least 8 characters.</p>
+
+            <button id="register-button" type="submit">Register</button>
+            <p id="register-status" class="form-status" role="status" aria-live="polite"></p>
+          </form>
+
+          <form id="login-form" class="auth-card">
+            <h2>Sign in</h2>
+
+            <label for="login-identifier">Username or email</label>
+            <input
+              id="login-identifier"
+              name="identifier"
+              type="text"
+              maxlength="255"
+              autocomplete="username"
+              required
+            >
+
+            <label for="login-password">Password</label>
+            <input
+              id="login-password"
+              name="password"
+              type="password"
+              maxlength="128"
+              autocomplete="current-password"
+              required
+            >
+
+            <button id="login-button" type="submit">Sign in</button>
+            <p id="login-status" class="form-status" role="status" aria-live="polite"></p>
+          </form>
+        </div>
+      </section>
+
+      <section id="dashboard-view" aria-labelledby="dashboard-heading" hidden>
+        <div class="dashboard-header">
+          <div>
+            <p class="eyebrow">Study dashboard</p>
+            <h1 id="dashboard-heading">What would you like to learn?</h1>
+            <p>Generate a focused study guide with concepts, flashcards, and a quiz.</p>
+          </div>
+
+          <aside class="account-panel" aria-label="Signed-in account">
+            <span>Signed in as</span>
+            <strong id="authenticated-username"></strong>
+            <span id="authenticated-email"></span>
+            <button id="logout-button" class="text-button" type="button">Log out</button>
+          </aside>
+        </div>
+
+        <form id="generate-form" class="generator-card">
+          <label for="topic-input">Study topic</label>
+          <div class="topic-controls">
+            <input
+              id="topic-input"
+              name="topic"
+              type="text"
+              minlength="3"
+              maxlength="200"
+              placeholder="For example: database normalization"
+              autocomplete="off"
+              required
+            >
+            <button id="generate-button" type="submit">Generate study guide</button>
+          </div>
+          <p id="generation-status" class="form-status" role="status" aria-live="polite"></p>
+        </form>
+
+        <section id="study-results" class="study-results" aria-labelledby="results-heading" hidden>
+          <div class="results-heading">
+            <p class="eyebrow">Generated material</p>
+            <h2 id="results-heading">Study guide: <span id="result-topic"></span></h2>
+          </div>
+
+          <article class="result-section">
+            <h3>Summary</h3>
+            <p id="summary-content"></p>
+          </article>
+
+          <section class="result-section" aria-labelledby="concepts-heading">
+            <h3 id="concepts-heading">Key concepts</h3>
+            <div id="key-concepts-list" class="concept-list"></div>
+          </section>
+
+          <section class="result-section" aria-labelledby="flashcards-heading">
+            <h3 id="flashcards-heading">Flashcards</h3>
+            <div id="flashcards-list" class="card-grid"></div>
+          </section>
+
+          <section class="result-section" aria-labelledby="quiz-heading">
+            <h3 id="quiz-heading">Quiz questions</h3>
+            <div id="quiz-questions-list" class="quiz-list"></div>
+          </section>
+        </section>
+
+        <p id="dashboard-status" class="form-status" role="status" aria-live="polite"></p>
+      </section>
+    </main>
+
+    <script src="js/app.js"></script>
+  </body>
+</html>
