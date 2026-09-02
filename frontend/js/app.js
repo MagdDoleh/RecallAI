@@ -46,10 +46,34 @@ const editGuideStatus = document.querySelector("#edit-guide-status");
 const savedSearchForm = document.querySelector("#saved-search-form");
 const savedSearchInput = document.querySelector("#saved-search-input");
 const clearSearchButton = document.querySelector("#clear-search-button");
+const dashboardHomeView = document.querySelector("#dashboard-home-view");
+const accountView = document.querySelector("#account-view");
+const showDashboardButton = document.querySelector("#show-dashboard-button");
+const showAccountButton = document.querySelector("#show-account-button");
+const dashboardCreateButton = document.querySelector("#dashboard-create-button");
+const viewAllSavedButton = document.querySelector("#view-all-saved-button");
+const welcomeUsername = document.querySelector("#welcome-username");
+const savedGuideCount = document.querySelector("#saved-guide-count");
+const recentGuidesList = document.querySelector("#recent-guides-list");
+const dashboardLibraryStatus = document.querySelector("#dashboard-library-status");
+const accountUsername = document.querySelector("#account-username");
+const accountEmail = document.querySelector("#account-email");
+const accountDetailUsername = document.querySelector("#account-detail-username");
+const accountDetailEmail = document.querySelector("#account-detail-email");
+const accountCreatedAt = document.querySelector("#account-created-at");
+const accountSavedCount = document.querySelector("#account-saved-count");
+const accountLogoutButton = document.querySelector("#account-logout-button");
+const sidebarUserAvatar = document.querySelector("#sidebar-user-avatar");
+const accountAvatar = document.querySelector("#account-avatar");
+const appSidebar = document.querySelector("#app-sidebar");
+const mobileMenuButton = document.querySelector("#mobile-menu-button");
+const sidebarOverlay = document.querySelector("#sidebar-overlay");
 
 let currentStudyMaterial = null;
 let currentSavedGuide = null;
 let savedGuidesRequestNumber = 0;
+let currentUser = null;
+let savedGuidesCache = [];
 
 function setStatus(element, message, type = "") {
   element.className = `form-status ${type}`.trim();
@@ -84,11 +108,26 @@ async function sendApiRequest(path, options = {}) {
 }
 
 function showAuthenticatedDashboard(user) {
+  currentUser = user;
   authenticatedUsername.textContent = user.username;
   authenticatedEmail.textContent = user.email;
+  welcomeUsername.textContent = user.username;
+  accountUsername.textContent = user.username;
+  accountEmail.textContent = user.email;
+  accountDetailUsername.textContent = user.username;
+  accountDetailEmail.textContent = user.email;
+  accountCreatedAt.textContent = new Date(user.created_at).toLocaleDateString(undefined, {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
+  const initial = user.username.charAt(0).toUpperCase();
+  sidebarUserAvatar.textContent = initial;
+  accountAvatar.textContent = initial;
   authView.hidden = true;
   dashboardView.hidden = false;
-  showCreateStudyView();
+  showDashboardHomeView();
+  loadDashboardLibrary();
   setStatus(dashboardStatus, "");
 }
 
@@ -104,6 +143,9 @@ function showAuthenticationForms(message = "") {
   editGuideForm.hidden = true;
   currentStudyMaterial = null;
   currentSavedGuide = null;
+  currentUser = null;
+  savedGuidesCache = [];
+  closeMobileNavigation();
   setStatus(generationStatus, "");
   setStatus(saveStatus, "");
   setStatus(savedGuidesStatus, "");
@@ -111,18 +153,54 @@ function showAuthenticationForms(message = "") {
   setStatus(loginStatus, message, message ? "success" : "");
 }
 
+function setActiveView(viewName) {
+  dashboardHomeView.hidden = viewName !== "dashboard";
+  createStudyView.hidden = viewName !== "create";
+  savedGuidesView.hidden = viewName !== "saved";
+  accountView.hidden = viewName !== "account";
+
+  for (const button of [
+    showDashboardButton,
+    showCreateButton,
+    showSavedButton,
+    showAccountButton,
+  ]) {
+    const isActive = button.dataset.view === viewName;
+    button.classList.toggle("active", isActive);
+    if (isActive) button.setAttribute("aria-current", "page");
+    else button.removeAttribute("aria-current");
+  }
+  closeMobileNavigation();
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+function showDashboardHomeView() {
+  setActiveView("dashboard");
+}
+
 function showCreateStudyView() {
-  createStudyView.hidden = false;
-  savedGuidesView.hidden = true;
-  showCreateButton.classList.add("active");
-  showSavedButton.classList.remove("active");
+  setActiveView("create");
 }
 
 function showSavedGuidesView() {
-  createStudyView.hidden = true;
-  savedGuidesView.hidden = false;
-  showCreateButton.classList.remove("active");
-  showSavedButton.classList.add("active");
+  setActiveView("saved");
+}
+
+function showAccountView() {
+  setActiveView("account");
+  accountSavedCount.textContent = savedGuidesCache.length;
+}
+
+function openMobileNavigation() {
+  appSidebar.classList.add("open");
+  sidebarOverlay.hidden = false;
+  mobileMenuButton.setAttribute("aria-expanded", "true");
+}
+
+function closeMobileNavigation() {
+  appSidebar.classList.remove("open");
+  sidebarOverlay.hidden = true;
+  mobileMenuButton.setAttribute("aria-expanded", "false");
 }
 
 function createTextElement(tagName, className, text) {
@@ -130,6 +208,72 @@ function createTextElement(tagName, className, text) {
   element.className = className;
   element.textContent = text;
   return element;
+}
+
+function formatGuideDate(dateValue) {
+  return new Date(dateValue).toLocaleDateString(undefined, {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
+}
+
+function renderRecentGuides(guides) {
+  recentGuidesList.replaceChildren();
+  if (guides.length === 0) {
+    const emptyState = document.createElement("div");
+    emptyState.className = "empty-state";
+    emptyState.append(
+      createTextElement("h3", "", "No study guides yet"),
+      createTextElement(
+        "p",
+        "",
+        "Create your first AI study guide to start building your library."
+      )
+    );
+    const createButton = createTextElement("button", "button button-primary", "Create your first guide");
+    createButton.type = "button";
+    createButton.addEventListener("click", showCreateStudyView);
+    emptyState.append(createButton);
+    recentGuidesList.append(emptyState);
+    return;
+  }
+
+  guides.slice(0, 3).forEach((guide) => {
+    const card = document.createElement("article");
+    card.className = "recent-guide-card";
+    card.append(
+      createTextElement("div", "guide-card-icon", "▤"),
+      createTextElement("h3", "", guide.title),
+      createTextElement("p", "saved-date", `Updated ${formatGuideDate(guide.updated_at)}`)
+    );
+    const openButton = createTextElement("button", "text-action", "Open guide →");
+    openButton.type = "button";
+    openButton.addEventListener("click", () => openSavedGuide(guide.id));
+    card.append(openButton);
+    recentGuidesList.append(card);
+  });
+}
+
+async function loadDashboardLibrary() {
+  const token = localStorage.getItem(TOKEN_STORAGE_KEY);
+  if (!token) return;
+  setStatus(dashboardLibraryStatus, "Loading your library...");
+  try {
+    const guides = await sendApiRequest("/topics", {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    savedGuidesCache = guides;
+    savedGuideCount.textContent = guides.length;
+    accountSavedCount.textContent = guides.length;
+    renderRecentGuides(guides);
+    setStatus(dashboardLibraryStatus, "");
+  } catch (error) {
+    if (!handleAuthenticationFailure(error)) {
+      savedGuideCount.textContent = "—";
+      setStatus(dashboardLibraryStatus, error.message, "error");
+    }
+  }
 }
 
 function renderStudyMaterial(material, { canSave = false, isSaved = false } = {}) {
@@ -160,11 +304,25 @@ function renderStudyMaterial(material, { canSave = false, isSaved = false } = {}
   material.flashcards.forEach((flashcard, index) => {
     const card = document.createElement("article");
     card.className = "flashcard";
+    card.tabIndex = 0;
+    card.setAttribute("role", "button");
+    card.setAttribute("aria-expanded", "false");
     card.append(
       createTextElement("span", "item-number", `Card ${index + 1}`),
       createTextElement("h4", "", flashcard.question),
       createTextElement("p", "flashcard-answer", flashcard.answer)
     );
+    const toggleCard = () => {
+      const revealed = card.classList.toggle("revealed");
+      card.setAttribute("aria-expanded", String(revealed));
+    };
+    card.addEventListener("click", toggleCard);
+    card.addEventListener("keydown", (event) => {
+      if (event.key === "Enter" || event.key === " ") {
+        event.preventDefault();
+        toggleCard();
+      }
+    });
     flashcardsList.append(card);
   });
 
@@ -241,7 +399,7 @@ function renderSavedGuideList(guides, searchTerm = "") {
       createTextElement(
         "p",
         "saved-date",
-        `Saved ${new Date(guide.created_at).toLocaleString()}`
+        `Updated ${formatGuideDate(guide.updated_at)}`
       )
     );
 
@@ -285,6 +443,12 @@ async function loadSavedGuides() {
     });
     if (requestNumber !== savedGuidesRequestNumber) {
       return;
+    }
+    if (!searchTerm) {
+      savedGuidesCache = guides;
+      savedGuideCount.textContent = guides.length;
+      accountSavedCount.textContent = guides.length;
+      renderRecentGuides(guides);
     }
     renderSavedGuideList(guides, searchTerm);
     setStatus(
@@ -467,6 +631,7 @@ async function deleteSavedGuide(topicId, title) {
 
     showSavedGuidesView();
     await loadSavedGuides();
+    await loadDashboardLibrary();
     setStatus(savedGuidesStatus, "Study guide deleted.", "success");
   } catch (error) {
     if (!handleAuthenticationFailure(error)) {
@@ -539,16 +704,52 @@ loginForm.addEventListener("submit", async (event) => {
   }
 });
 
-logoutButton.addEventListener("click", () => {
+function logOut() {
   localStorage.removeItem(TOKEN_STORAGE_KEY);
   showAuthenticationForms("You have been logged out.");
+}
+
+logoutButton.addEventListener("click", logOut);
+accountLogoutButton.addEventListener("click", logOut);
+
+showDashboardButton.addEventListener("click", () => {
+  showDashboardHomeView();
+  loadDashboardLibrary();
 });
 
 showCreateButton.addEventListener("click", showCreateStudyView);
 
+dashboardCreateButton.addEventListener("click", showCreateStudyView);
+
 showSavedButton.addEventListener("click", () => {
   showSavedGuidesView();
   loadSavedGuides();
+});
+
+viewAllSavedButton.addEventListener("click", () => {
+  showSavedGuidesView();
+  loadSavedGuides();
+});
+
+showAccountButton.addEventListener("click", showAccountView);
+
+for (const brandLink of document.querySelectorAll('[data-view="dashboard"]')) {
+  if (brandLink.tagName === "A") {
+    brandLink.addEventListener("click", (event) => {
+      event.preventDefault();
+      showDashboardHomeView();
+      loadDashboardLibrary();
+    });
+  }
+}
+
+mobileMenuButton.addEventListener("click", () => {
+  if (appSidebar.classList.contains("open")) closeMobileNavigation();
+  else openMobileNavigation();
+});
+sidebarOverlay.addEventListener("click", closeMobileNavigation);
+document.addEventListener("keydown", (event) => {
+  if (event.key === "Escape") closeMobileNavigation();
 });
 
 refreshSavedButton.addEventListener("click", loadSavedGuides);
@@ -598,6 +799,7 @@ editGuideForm.addEventListener("submit", async (event) => {
       body: JSON.stringify(buildEditedMaterial()),
     });
     renderStudyMaterial(updatedGuide, { isSaved: true });
+    loadDashboardLibrary();
     setStatus(generationStatus, "Saved study guide updated successfully.", "success");
   } catch (error) {
     if (!handleAuthenticationFailure(error)) {
@@ -630,6 +832,7 @@ saveGuideButton.addEventListener("click", async () => {
     });
     saveGuideButton.textContent = "Saved";
     setStatus(saveStatus, "Study guide saved successfully.", "success");
+    loadDashboardLibrary();
   } catch (error) {
     if (!handleAuthenticationFailure(error)) {
       saveGuideButton.disabled = false;

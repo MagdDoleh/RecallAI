@@ -1,245 +1,85 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RecallAI</title>
-    <link rel="stylesheet" href="css/styles.css">
-  </head>
-  <body>
-    <header class="site-header">
-      <a class="brand" href="/">RecallAI</a>
-      <span class="phase-label">Study dashboard</span>
-    </header>
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="RecallAI turns any topic into a focused AI-powered study guide.">
+  <title>RecallAI — Learn with clarity</title><link rel="stylesheet" href="css/styles.css">
+</head>
+<body><main>
+  <section id="auth-view" class="auth-view" aria-labelledby="auth-heading">
+    <div class="auth-brand-panel">
+      <a class="brand brand-light" href="/" aria-label="RecallAI home"><span class="brand-mark" aria-hidden="true">R</span><span>RecallAI</span></a>
+      <div class="auth-brand-copy"><p class="eyebrow eyebrow-light">Your personal study workspace</p><h1 id="auth-heading">Turn any topic into a study guide you can actually use.</h1><p>Generate clear summaries, key concepts, flashcards, and quizzes—then keep everything organized in one place.</p></div>
+      <div class="auth-feature-list" aria-label="RecallAI features"><span>AI-generated study material</span><span>Flashcards and quizzes</span><span>Your own saved library</span></div>
+    </div>
+    <div class="auth-form-panel">
+      <div class="auth-mobile-brand"><span class="brand-mark" aria-hidden="true">R</span><strong>RecallAI</strong></div>
+      <div class="auth-heading-copy"><p class="eyebrow">Welcome</p><h2>Start learning with RecallAI</h2><p>Sign in to continue or create your free account.</p></div>
+      <div class="auth-grid">
+        <form id="login-form" class="auth-card">
+          <div class="card-heading"><h3>Sign in</h3><p>Welcome back to your study space.</p></div>
+          <label for="login-identifier">Username or email</label><input id="login-identifier" name="identifier" type="text" maxlength="255" autocomplete="username" placeholder="Enter username or email" required>
+          <label for="login-password">Password</label><input id="login-password" name="password" type="password" maxlength="128" autocomplete="current-password" placeholder="Enter your password" required>
+          <button id="login-button" class="button button-primary button-full" type="submit">Sign in</button><p id="login-status" class="form-status" role="status" aria-live="polite"></p>
+        </form>
+        <div class="auth-divider" aria-hidden="true"><span>or</span></div>
+        <form id="register-form" class="auth-card auth-card-secondary">
+          <div class="card-heading"><h3>Create an account</h3><p>Build your personal study-guide library.</p></div>
+          <label for="register-username">Username</label><input id="register-username" name="username" type="text" minlength="3" maxlength="50" pattern="[A-Za-z0-9_]+" autocomplete="username" placeholder="Choose a username" required>
+          <label for="register-email">Email</label><input id="register-email" name="email" type="email" maxlength="255" autocomplete="email" placeholder="you@example.com" required>
+          <label for="register-password">Password</label><input id="register-password" name="password" type="password" minlength="8" maxlength="128" autocomplete="new-password" placeholder="At least 8 characters" required><p class="field-hint">Use at least 8 characters.</p>
+          <button id="register-button" class="button button-secondary button-full" type="submit">Create account</button><p id="register-status" class="form-status" role="status" aria-live="polite"></p>
+        </form>
+      </div>
+    </div>
+  </section>
 
-    <main class="page-shell">
-      <section id="auth-view" aria-labelledby="auth-heading">
-        <div class="intro-block">
-          <p class="eyebrow">Your study space</p>
-          <h1 id="auth-heading">Welcome to RecallAI</h1>
-          <p>Create an account or sign in to continue.</p>
-        </div>
-
-        <div class="auth-grid">
-          <form id="register-form" class="auth-card">
-            <h2>Create an account</h2>
-
-            <label for="register-username">Username</label>
-            <input
-              id="register-username"
-              name="username"
-              type="text"
-              minlength="3"
-              maxlength="50"
-              pattern="[A-Za-z0-9_]+"
-              autocomplete="username"
-              required
-            >
-
-            <label for="register-email">Email</label>
-            <input
-              id="register-email"
-              name="email"
-              type="email"
-              maxlength="255"
-              autocomplete="email"
-              required
-            >
-
-            <label for="register-password">Password</label>
-            <input
-              id="register-password"
-              name="password"
-              type="password"
-              minlength="8"
-              maxlength="128"
-              autocomplete="new-password"
-              required
-            >
-            <p class="field-hint">Use at least 8 characters.</p>
-
-            <button id="register-button" type="submit">Register</button>
-            <p id="register-status" class="form-status" role="status" aria-live="polite"></p>
-          </form>
-
-          <form id="login-form" class="auth-card">
-            <h2>Sign in</h2>
-
-            <label for="login-identifier">Username or email</label>
-            <input
-              id="login-identifier"
-              name="identifier"
-              type="text"
-              maxlength="255"
-              autocomplete="username"
-              required
-            >
-
-            <label for="login-password">Password</label>
-            <input
-              id="login-password"
-              name="password"
-              type="password"
-              maxlength="128"
-              autocomplete="current-password"
-              required
-            >
-
-            <button id="login-button" type="submit">Sign in</button>
-            <p id="login-status" class="form-status" role="status" aria-live="polite"></p>
-          </form>
-        </div>
-      </section>
-
-      <section id="dashboard-view" aria-labelledby="dashboard-heading" hidden>
-        <div class="dashboard-header">
-          <div>
-            <p class="eyebrow">Study dashboard</p>
-            <h1 id="dashboard-heading">What would you like to learn?</h1>
-            <p>Generate a focused study guide with concepts, flashcards, and a quiz.</p>
-          </div>
-
-          <aside class="account-panel" aria-label="Signed-in account">
-            <span>Signed in as</span>
-            <strong id="authenticated-username"></strong>
-            <span id="authenticated-email"></span>
-            <button id="logout-button" class="text-button" type="button">Log out</button>
-          </aside>
-        </div>
-
-        <nav class="app-navigation" aria-label="Study dashboard sections">
-          <button id="show-create-button" class="nav-button active" type="button">
-            Create study guide
-          </button>
-          <button id="show-saved-button" class="nav-button" type="button">
-            Saved study guides
-          </button>
-        </nav>
-
-        <div id="create-study-view">
-          <form id="generate-form" class="generator-card">
-          <label for="topic-input">Study topic</label>
-          <div class="topic-controls">
-            <input
-              id="topic-input"
-              name="topic"
-              type="text"
-              minlength="3"
-              maxlength="200"
-              placeholder="For example: database normalization"
-              autocomplete="off"
-              required
-            >
-            <button id="generate-button" type="submit">Generate study guide</button>
-          </div>
-          <p id="generation-status" class="form-status" role="status" aria-live="polite"></p>
-          </form>
-
-          <section id="study-results" class="study-results" aria-labelledby="results-heading" hidden>
-            <div class="results-heading">
-              <div>
-                <p class="eyebrow">Study material</p>
-                <h2 id="results-heading">Study guide: <span id="result-topic"></span></h2>
-              </div>
-              <div class="save-controls">
-                <button id="save-guide-button" type="button">Save study guide</button>
-                <div id="saved-guide-controls" class="saved-guide-controls" hidden>
-                  <button id="edit-guide-button" type="button">Edit guide</button>
-                  <button id="delete-open-guide-button" class="danger-button" type="button">
-                    Delete guide
-                  </button>
-                </div>
-                <p id="save-status" class="form-status" role="status" aria-live="polite"></p>
-              </div>
-            </div>
-
-            <article class="result-section">
-              <h3>Summary</h3>
-              <p id="summary-content"></p>
-            </article>
-
-            <section class="result-section" aria-labelledby="concepts-heading">
-              <h3 id="concepts-heading">Key concepts</h3>
-              <div id="key-concepts-list" class="concept-list"></div>
-            </section>
-
-            <section class="result-section" aria-labelledby="flashcards-heading">
-              <h3 id="flashcards-heading">Flashcards</h3>
-              <div id="flashcards-list" class="card-grid"></div>
-            </section>
-
-            <section class="result-section" aria-labelledby="quiz-heading">
-              <h3 id="quiz-heading">Quiz questions</h3>
-              <div id="quiz-questions-list" class="quiz-list"></div>
-            </section>
-          </section>
-
-          <form id="edit-guide-form" class="edit-guide-form" hidden>
-            <div>
-              <p class="eyebrow">Edit saved guide</p>
-              <h2>Update study material</h2>
-            </div>
-
-            <label for="edit-topic-input">Topic title</label>
-            <input id="edit-topic-input" type="text" minlength="3" maxlength="200" required>
-
-            <label for="edit-summary-input">Summary</label>
-            <textarea id="edit-summary-input" rows="6" maxlength="5000" required></textarea>
-
-            <fieldset>
-              <legend>Key concepts</legend>
-              <div id="edit-key-concepts-fields" class="edit-fields-list"></div>
-            </fieldset>
-
-            <fieldset>
-              <legend>Flashcards</legend>
-              <div id="edit-flashcards-fields" class="edit-fields-list"></div>
-            </fieldset>
-
-            <fieldset>
-              <legend>Quiz questions</legend>
-              <div id="edit-quiz-fields" class="edit-fields-list"></div>
-            </fieldset>
-
-            <div class="edit-actions">
-              <button id="update-guide-button" type="submit">Save changes</button>
-              <button id="cancel-edit-button" class="secondary-button" type="button">Cancel</button>
-            </div>
-            <p id="edit-guide-status" class="form-status" role="status" aria-live="polite"></p>
-          </form>
-        </div>
-
-        <section id="saved-guides-view" class="saved-guides-view" aria-labelledby="saved-guides-heading" hidden>
-          <div class="saved-guides-header">
-            <div>
-              <p class="eyebrow">Your library</p>
-              <h2 id="saved-guides-heading">Saved study guides</h2>
-            </div>
-            <button id="refresh-saved-button" class="secondary-button" type="button">
-              Refresh
-            </button>
-          </div>
-          <form id="saved-search-form" class="saved-search-form">
-            <label for="saved-search-input">Search by topic</label>
-            <div class="saved-search-controls">
-              <input
-                id="saved-search-input"
-                type="search"
-                maxlength="200"
-                placeholder="Search saved study guides"
-              >
-              <button id="saved-search-button" type="submit">Search</button>
-              <button id="clear-search-button" class="secondary-button" type="button">Clear</button>
-            </div>
-          </form>
-          <p id="saved-guides-status" class="form-status" role="status" aria-live="polite"></p>
-          <div id="saved-guides-list" class="saved-guides-list"></div>
+  <section id="dashboard-view" class="app-shell" aria-label="RecallAI application" hidden>
+    <aside id="app-sidebar" class="sidebar">
+      <a class="brand sidebar-brand" href="#" data-view="dashboard" aria-label="RecallAI dashboard"><span class="brand-mark" aria-hidden="true">R</span><span>RecallAI</span></a>
+      <nav class="sidebar-nav" aria-label="Main navigation"><p class="nav-label">Workspace</p>
+        <button id="show-dashboard-button" class="nav-button active" type="button" data-view="dashboard"><span class="nav-icon" aria-hidden="true">⌂</span><span>Dashboard</span></button>
+        <button id="show-create-button" class="nav-button" type="button" data-view="create"><span class="nav-icon" aria-hidden="true">＋</span><span>Create</span></button>
+        <button id="show-saved-button" class="nav-button" type="button" data-view="saved"><span class="nav-icon" aria-hidden="true">▤</span><span>Saved</span></button>
+        <button id="show-account-button" class="nav-button" type="button" data-view="account"><span class="nav-icon" aria-hidden="true">○</span><span>Account</span></button>
+      </nav>
+      <div class="sidebar-user"><div class="user-avatar" id="sidebar-user-avatar" aria-hidden="true">R</div><div class="sidebar-user-copy"><strong id="authenticated-username"></strong><span id="authenticated-email"></span></div><button id="logout-button" class="icon-button" type="button" title="Log out" aria-label="Log out">↪</button></div>
+    </aside>
+    <div class="app-main">
+      <header class="mobile-header"><button id="mobile-menu-button" class="icon-button menu-button" type="button" aria-label="Open navigation" aria-controls="app-sidebar" aria-expanded="false">☰</button><a class="brand" href="#" data-view="dashboard"><span class="brand-mark" aria-hidden="true">R</span><span>RecallAI</span></a></header>
+      <button id="sidebar-overlay" class="sidebar-overlay" type="button" aria-label="Close navigation" hidden></button>
+      <div class="content-shell">
+        <section id="dashboard-home-view" class="app-view" aria-labelledby="dashboard-heading">
+          <header class="page-header dashboard-welcome"><div><p class="eyebrow">Dashboard</p><h1 id="dashboard-heading">Welcome back, <span id="welcome-username"></span></h1><p>What would you like to learn today?</p></div><button id="dashboard-create-button" class="button button-primary" type="button"><span aria-hidden="true">＋</span> Create study guide</button></header>
+          <section class="dashboard-stats" aria-label="Library overview"><article class="stat-card"><div class="stat-icon" aria-hidden="true">▤</div><div><span>Saved study guides</span><strong id="saved-guide-count">—</strong></div></article><article class="stat-card stat-card-accent"><div class="stat-icon" aria-hidden="true">✦</div><div><span>Ready to explore?</span><strong>Create something new</strong></div></article></section>
+          <section class="recent-section" aria-labelledby="recent-guides-heading"><div class="section-heading-row"><div><h2 id="recent-guides-heading">Recent study guides</h2><p>Continue with your latest saved material.</p></div><button id="view-all-saved-button" class="text-action" type="button">View all <span aria-hidden="true">→</span></button></div><p id="dashboard-library-status" class="form-status" role="status" aria-live="polite"></p><div id="recent-guides-list" class="recent-guides-grid"></div></section>
         </section>
 
-        <p id="dashboard-status" class="form-status" role="status" aria-live="polite"></p>
-      </section>
-    </main>
+        <section id="create-study-view" class="app-view" aria-labelledby="create-heading" hidden>
+          <header class="page-header"><div><p class="eyebrow">Create</p><h1 id="create-heading">What do you want to learn?</h1><p>Enter a topic and RecallAI will build a focused study guide for you.</p></div></header>
+          <form id="generate-form" class="generator-card"><div class="generator-icon" aria-hidden="true">✦</div><div class="generator-copy"><label for="topic-input">Study topic</label><p>Be specific for the most useful results.</p></div><div class="topic-controls"><input id="topic-input" name="topic" type="text" minlength="3" maxlength="200" placeholder="e.g. Database normalization" autocomplete="off" required><button id="generate-button" class="button button-primary" type="submit"><span aria-hidden="true">✦</span> Generate guide</button></div><p id="generation-status" class="form-status" role="status" aria-live="polite"></p></form>
+          <section id="study-results" class="study-results" aria-labelledby="results-heading" hidden>
+            <div class="results-heading"><div><p class="eyebrow">Study guide</p><h2 id="results-heading"><span id="result-topic"></span></h2></div><div class="save-controls"><button id="save-guide-button" class="button button-primary" type="button"><span aria-hidden="true">＋</span> Save study guide</button><div id="saved-guide-controls" class="saved-guide-controls" hidden><button id="edit-guide-button" class="button button-secondary" type="button">Edit guide</button><button id="delete-open-guide-button" class="button danger-button" type="button">Delete guide</button></div><p id="save-status" class="form-status" role="status" aria-live="polite"></p></div></div>
+            <article class="result-section summary-section"><div class="section-icon" aria-hidden="true">≡</div><div><h3>Summary</h3><p id="summary-content"></p></div></article>
+            <section class="result-section" aria-labelledby="concepts-heading"><div class="result-title"><div class="section-icon" aria-hidden="true">◆</div><div><h3 id="concepts-heading">Key concepts</h3><p>The essential ideas to understand.</p></div></div><div id="key-concepts-list" class="concept-list"></div></section>
+            <section class="result-section" aria-labelledby="flashcards-heading"><div class="result-title"><div class="section-icon" aria-hidden="true">▱</div><div><h3 id="flashcards-heading">Flashcards</h3><p>Select a card to reveal its answer.</p></div></div><div id="flashcards-list" class="card-grid"></div></section>
+            <section class="result-section" aria-labelledby="quiz-heading"><div class="result-title"><div class="section-icon" aria-hidden="true">?</div><div><h3 id="quiz-heading">Quiz</h3><p>Check your understanding of the topic.</p></div></div><div id="quiz-questions-list" class="quiz-list"></div></section>
+          </section>
+          <form id="edit-guide-form" class="edit-guide-form" hidden><div class="section-heading-row"><div><p class="eyebrow">Edit saved guide</p><h2>Update study material</h2><p>Your changes will replace the saved version.</p></div></div><label for="edit-topic-input">Topic title</label><input id="edit-topic-input" type="text" minlength="3" maxlength="200" required><label for="edit-summary-input">Summary</label><textarea id="edit-summary-input" rows="6" maxlength="5000" required></textarea><fieldset><legend>Key concepts</legend><div id="edit-key-concepts-fields" class="edit-fields-list"></div></fieldset><fieldset><legend>Flashcards</legend><div id="edit-flashcards-fields" class="edit-fields-list"></div></fieldset><fieldset><legend>Quiz questions</legend><div id="edit-quiz-fields" class="edit-fields-list"></div></fieldset><div class="edit-actions"><button id="update-guide-button" class="button button-primary" type="submit">Save changes</button><button id="cancel-edit-button" class="button button-secondary" type="button">Cancel</button></div><p id="edit-guide-status" class="form-status" role="status" aria-live="polite"></p></form>
+        </section>
 
-    <script src="js/app.js"></script>
-  </body>
+        <section id="saved-guides-view" class="app-view" aria-labelledby="saved-guides-heading" hidden>
+          <header class="page-header library-header"><div><p class="eyebrow">Library</p><h1 id="saved-guides-heading">Saved study guides</h1><p>Search, open, and manage your personal learning library.</p></div><button id="refresh-saved-button" class="button button-secondary" type="button">↻ Refresh</button></header>
+          <form id="saved-search-form" class="saved-search-form" role="search"><label class="sr-only" for="saved-search-input">Search by topic</label><span class="search-icon" aria-hidden="true">⌕</span><input id="saved-search-input" type="search" maxlength="200" placeholder="Search by topic..."><button id="saved-search-button" class="button button-primary" type="submit">Search</button><button id="clear-search-button" class="button button-quiet" type="button">Clear</button></form><p id="saved-guides-status" class="form-status" role="status" aria-live="polite"></p><div id="saved-guides-list" class="saved-guides-list"></div>
+        </section>
+
+        <section id="account-view" class="app-view" aria-labelledby="account-heading" hidden>
+          <header class="page-header"><div><p class="eyebrow">Account</p><h1 id="account-heading">Your account</h1><p>View the information connected to your RecallAI account.</p></div></header>
+          <div class="account-layout"><article class="account-card account-identity"><div id="account-avatar" class="account-avatar" aria-hidden="true">R</div><div><h2 id="account-username"></h2><p id="account-email"></p></div></article><article class="account-card account-details"><h2>Account details</h2><dl><div><dt>Username</dt><dd id="account-detail-username"></dd></div><div><dt>Email address</dt><dd id="account-detail-email"></dd></div><div><dt>Member since</dt><dd id="account-created-at"></dd></div><div><dt>Saved guides</dt><dd id="account-saved-count">—</dd></div></dl></article><article class="account-card account-session"><div><h2>Current session</h2><p>You are securely signed in on this browser.</p></div><button id="account-logout-button" class="button danger-outline-button" type="button">Log out</button></article></div>
+        </section>
+        <p id="dashboard-status" class="form-status" role="status" aria-live="polite"></p>
+      </div>
+    </div>
+  </section>
+</main><script src="js/app.js"></script></body>
 </html>
