@@ -1,4 +1,9 @@
-const API_BASE_URL = "http://127.0.0.1:8000";
+const LOCAL_FRONTEND_HOSTS = new Set(["127.0.0.1", "localhost"]);
+const IS_LOCAL_STATIC_SERVER =
+  LOCAL_FRONTEND_HOSTS.has(window.location.hostname) && window.location.port === "5500";
+const API_BASE_URL = IS_LOCAL_STATIC_SERVER
+  ? "http://127.0.0.1:8000"
+  : window.location.origin;
 const TOKEN_STORAGE_KEY = "recallai_access_token";
 
 const authView = document.querySelector("#auth-view");

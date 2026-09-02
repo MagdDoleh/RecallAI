@@ -11,6 +11,14 @@ load_dotenv(dotenv_path=PROJECT_ROOT / ".env")
 JWT_ALGORITHM = "HS256"
 JWT_EXPIRE_MINUTES = int(os.getenv("RECALLAI_JWT_EXPIRE_MINUTES", "60"))
 GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-3.6-flash")
+LOCAL_CORS_ORIGINS = ["http://127.0.0.1:5500", "http://localhost:5500"]
+
+
+def get_cors_origins() -> list[str]:
+    configured_origins = os.getenv("RECALLAI_CORS_ORIGINS")
+    if configured_origins is None:
+        return LOCAL_CORS_ORIGINS
+    return [origin.strip().rstrip("/") for origin in configured_origins.split(",") if origin.strip()]
 
 
 def get_jwt_secret() -> str:

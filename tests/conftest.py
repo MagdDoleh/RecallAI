@@ -10,6 +10,7 @@ from sqlalchemy.orm import Session, sessionmaker
 
 os.environ["RECALLAI_JWT_SECRET"] = "test-only-jwt-secret-that-is-at-least-32-characters"
 os.environ["GEMINI_API_KEY"] = ""
+os.environ["DATABASE_URL"] = "sqlite:///:memory:"
 
 from backend import database as database_module  # noqa: E402
 

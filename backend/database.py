@@ -1,19 +1,30 @@
 from collections.abc import Generator
-from pathlib import Path
+import os
 
 from sqlalchemy import create_engine, event, inspect, text
-from sqlalchemy.engine import Engine
 from sqlalchemy.orm import DeclarativeBase, Session, sessionmaker
 
+from backend.config import PROJECT_ROOT
 
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
 DATABASE_PATH = PROJECT_ROOT / "recallai.db"
-DATABASE_URL = f"sqlite:///{DATABASE_PATH.as_posix()}"
+LOCAL_DATABASE_URL = f"sqlite:///{DATABASE_PATH.as_posix()}"
 
-engine = create_engine(
-    DATABASE_URL,
-    connect_args={"check_same_thread": False},
-)
+
+def get_database_url() -> str:
+    database_url = os.getenv("DATABASE_URL", LOCAL_DATABASE_URL)
+    if database_url.startswith("postgres://"):
+        return database_url.replace("postgres://", "postgresql+psycopg://", 1)
+    if database_url.startswith("postgresql://"):
+        return database_url.replace("postgresql://", "postgresql+psycopg://", 1)
+    return database_url
+
+
+DATABASE_URL = get_database_url()
+engine_options = {}
+if DATABASE_URL.startswith("sqlite"):
+    engine_options["connect_args"] = {"check_same_thread": False}
+
+engine = create_engine(DATABASE_URL, **engine_options)
 
 SessionLocal = sessionmaker(bind=engine, autoflush=False, autocommit=False)
 
@@ -22,11 +33,12 @@ class Base(DeclarativeBase):
     pass
 
 
-@event.listens_for(Engine, "connect")
-def enable_sqlite_foreign_keys(dbapi_connection, connection_record) -> None:
-    cursor = dbapi_connection.cursor()
-    cursor.execute("PRAGMA foreign_keys=ON")
-    cursor.close()
+if engine.dialect.name == "sqlite":
+    @event.listens_for(engine, "connect")
+    def enable_sqlite_foreign_keys(dbapi_connection, connection_record) -> None:
+        cursor = dbapi_connection.cursor()
+        cursor.execute("PRAGMA foreign_keys=ON")
+        cursor.close()
 
 
 def create_database_tables() -> None:
@@ -38,6 +50,9 @@ def create_database_tables() -> None:
 
 
 def ensure_topic_key_concepts_column() -> None:
+    if engine.dialect.name != "sqlite":
+        return
+
     topic_columns = {
         column["name"] for column in inspect(engine).get_columns("topics")
     }
