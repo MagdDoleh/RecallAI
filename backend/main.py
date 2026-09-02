@@ -27,14 +27,15 @@ app.include_router(generation_router)
 app.include_router(topics_router)
 
 
-@app.get("/")
-def read_root() -> dict[str, str]:
+@app.get("/api/health")
+def read_health() -> dict[str, str]:
     return {"message": "RecallAI API is running"}
 
 
 FRONTEND_DIRECTORY = Path(__file__).resolve().parent.parent / "frontend"
 
 
+@app.get("/", include_in_schema=False)
 @app.get("/app", include_in_schema=False)
 def serve_frontend() -> FileResponse:
     return FileResponse(FRONTEND_DIRECTORY / "index.html")

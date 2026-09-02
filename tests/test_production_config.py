@@ -30,9 +30,11 @@ def test_cors_uses_trimmed_configured_origins(monkeypatch):
 
 
 def test_fastapi_serves_same_frontend_files_in_production(client: TestClient):
-    page = client.get("/app")
-    assert page.status_code == 200
-    assert "RecallAI" in page.text
+    for path in ["/", "/app"]:
+        page = client.get(path)
+        assert page.status_code == 200
+        assert "text/html" in page.headers["content-type"]
+        assert "RecallAI" in page.text
     assert client.get("/css/styles.css").status_code == 200
     javascript = client.get("/js/app.js")
     assert javascript.status_code == 200
