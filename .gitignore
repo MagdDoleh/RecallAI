@@ -4,3 +4,4 @@ __pycache__/
 recallai.db
 .env
 .phase4-browser-profile/
+.pytest_cache/

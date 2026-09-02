@@ -59,16 +59,31 @@ class KeyConcept(BaseModel):
     name: str = Field(min_length=1, max_length=120)
     explanation: str = Field(min_length=1, max_length=1000)
 
+    @field_validator("name", "explanation", mode="before")
+    @classmethod
+    def strip_text(cls, value: str) -> str:
+        return value.strip() if isinstance(value, str) else value
+
 
 class GeneratedFlashcard(BaseModel):
     question: str = Field(min_length=1, max_length=500)
     answer: str = Field(min_length=1, max_length=1000)
+
+    @field_validator("question", "answer", mode="before")
+    @classmethod
+    def strip_text(cls, value: str) -> str:
+        return value.strip() if isinstance(value, str) else value
 
 
 class GeneratedQuizQuestion(BaseModel):
     question: str = Field(min_length=1, max_length=500)
     answer: str = Field(min_length=1, max_length=1000)
     difficulty: Literal["easy", "medium", "hard"]
+
+    @field_validator("question", "answer", mode="before")
+    @classmethod
+    def strip_text(cls, value: str) -> str:
+        return value.strip() if isinstance(value, str) else value
 
 
 class GeneratedStudyContent(BaseModel):
@@ -77,9 +92,26 @@ class GeneratedStudyContent(BaseModel):
     flashcards: list[GeneratedFlashcard] = Field(min_length=3, max_length=8)
     quiz_questions: list[GeneratedQuizQuestion] = Field(min_length=3, max_length=8)
 
+    @field_validator("summary", mode="before")
+    @classmethod
+    def strip_summary(cls, value: str) -> str:
+        return value.strip() if isinstance(value, str) else value
+
 
 class StudyMaterialResponse(GeneratedStudyContent):
-    topic: str
+    topic: str = Field(min_length=3, max_length=200)
+
+    @field_validator("topic", mode="before")
+    @classmethod
+    def strip_topic(cls, value: str) -> str:
+        return value.strip() if isinstance(value, str) else value
+
+    @field_validator("topic")
+    @classmethod
+    def require_readable_topic(cls, value: str) -> str:
+        if not any(character.isalnum() for character in value):
+            raise ValueError("Topic must include at least one letter or number.")
+        return value
 
 
 class SavedTopicListItem(BaseModel):
